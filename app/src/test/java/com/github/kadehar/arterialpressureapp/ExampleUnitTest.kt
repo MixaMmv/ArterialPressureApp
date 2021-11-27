@@ -7,6 +7,7 @@ import com.github.kadehar.arterialpressureapp.domain.ArterialPressureInteractor
 import com.github.kadehar.arterialpressureapp.domain.model.ArterialPressure
 import com.github.kadehar.arterialpressureapp.feature.arterial_pressure_list.ui.ArterialPressureListViewModel
 import com.github.kadehar.arterialpressureapp.feature.arterial_pressure_list.ui.DataEvent
+import com.github.kadehar.arterialpressureapp.feature.arterial_pressure_list.ui.UiEvent
 import com.github.kadehar.arterialpressureapp.feature.arterial_pressure_list.ui.ViewState
 import com.github.kadehar.arterialpressureapp.feature.arterial_pressure_list.ui.model.APListItems
 import com.github.terrakok.cicerone.Router
@@ -47,6 +48,8 @@ class ExampleUnitTest {
         viewModel = ArterialPressureListViewModel(interactor, router)
 
         viewModel.viewState.observeForever(viewStateObserver)
+
+
     }
 
 
@@ -55,14 +58,16 @@ class ExampleUnitTest {
         assertEquals(4, 2 + 2)
     }
 
-
     @Test
     fun `LoadData-SuccessfulDataLoad`() {
 
         // Arrange
         val list = listOf(
-            APListItems.ArterialPressure("1", "1", "1", 100),
-            APListItems.ArterialPressure("2", "2", "2", 200)
+            APListItems.ArterialPressure("1", "1", "1", 1613447403000), //Feb 16 2021
+            APListItems.ArterialPressure("2", "2", "2", 1618545003000), //Apr 16 2021
+            APListItems.ArterialPressure("3", "3", "3", 1634356203000), //Oct 16 2021
+            APListItems.ArterialPressure("4", "4", "4", 1637725803000), //Nov 24 2021
+            APListItems.ArterialPressure("5", "5", "5", 1637985003000)  //Nov 27 2021
         )
 
         // Act
@@ -74,6 +79,53 @@ class ExampleUnitTest {
         assertEquals(list[1], viewState.arterialPressureList[1])
 
     }
+
+    @Test
+    fun `LoadData-OnFilterButtonClicked`() {
+
+        // Arrange
+        val list = listOf(
+            APListItems.ArterialPressure("1", "1", "1", 1613447403000), //Feb 16 2021
+            APListItems.ArterialPressure("2", "2", "2", 1618545003000), //Apr 16 2021
+            APListItems.ArterialPressure("3", "3", "3", 1634356203000), //Oct 16 2021
+            APListItems.ArterialPressure("4", "4", "4", 1637725803000), //Nov 24 2021
+            APListItems.ArterialPressure("5", "5", "5", 1637985003000) //Nov 27 2021
+        )
+
+        // Act
+        viewModel.processUiEvent(DataEvent.LoadData)
+        viewModel.processUiEvent(UiEvent.OnFilterButtonClicked(2))
+        val viewState = captureViewState()
+
+        // Assert
+        assertEquals(list.takeLast(2), viewState.arterialPressureListShown)
+
+    }
+
+    @Test
+    fun `LoadData-OnFilterButtonClicked-SecondClick`() {
+
+        // Arrange
+        val list = listOf(
+            APListItems.ArterialPressure("1", "1", "1", 1613447403000), //Feb 16 2021
+            APListItems.ArterialPressure("2", "2", "2", 1618545003000), //Apr 16 2021
+            APListItems.ArterialPressure("3", "3", "3", 1634356203000), //Oct 16 2021
+            APListItems.ArterialPressure("4", "4", "4", 1637725803000), //Nov 24 2021
+            APListItems.ArterialPressure("5", "5", "5", 1637985003000) //Nov 27 2021
+        )
+
+        // Act
+        viewModel.processUiEvent(DataEvent.LoadData)
+        viewModel.processUiEvent(UiEvent.OnFilterButtonClicked(4))
+        viewModel.processUiEvent(UiEvent.OnFilterButtonClicked(4))
+        val viewState = captureViewState()
+
+        // Assert
+        assertEquals(list, viewState.arterialPressureListShown)
+
+    }
+
+
 
     private fun captureViewState(): ViewState = capture {
         verify(viewStateObserver, atLeastOnce()).onChanged(it.capture())
