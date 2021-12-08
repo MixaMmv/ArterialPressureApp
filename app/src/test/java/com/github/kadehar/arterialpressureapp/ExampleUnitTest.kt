@@ -49,7 +49,6 @@ class ExampleUnitTest {
 
         viewModel.viewState.observeForever(viewStateObserver)
 
-
     }
 
 
@@ -129,7 +128,6 @@ class ExampleUnitTest {
 
     private fun captureViewState(): ViewState = capture {
         verify(viewStateObserver, atLeastOnce()).onChanged(it.capture())
-
     }
 
     inline fun <reified T : Any> capture(invokeCaptor: (KArgumentCaptor<T>) -> Unit): T {
